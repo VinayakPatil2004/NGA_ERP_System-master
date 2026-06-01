@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            padding: 10px;
+            color: #1e293b;
+            font-size: 11px;
+        }
+
+        .container {
+            border: 2px solid #001736;
+            padding: 15px;
+            position: relative;
+            min-height: auto;
+        }
+
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.05;
+            z-index: -1;
+            width: 60%;
+        }
+
+        /* Header section */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #001736;
+            padding-bottom: 10px;
+        }
+
+        .logo {
+            width: 70px;
+            height: auto;
+        }
+
+        .header-text {
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0 0 5px;
+            color: #001736;
+            font-size: 20px;
+            text-transform: uppercase;
+        }
+
+        .address {
+            font-size: 9px;
+            color: #64748b;
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+
+        .title {
+            background: #001736;
+            color: #fbbf24;
+            padding: 4px 15px;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+
+        /* Student Info */
+        .student-info {
+            margin-bottom: 15px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            padding: 10px;
+        }
+
+        .info-row {
+            display: flex;
+            border-bottom: 1px dotted #cbd5e1;
+            padding: 5px 0;
+            font-size: 11px;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            margin-right: 30px;
+        }
+
+        .info-item:last-child {
+            margin-right: 0;
+        }
+
+        .label {
+            font-weight: bold;
+            color: #475569;
+            margin-right: 8px;
+            font-size: 10px;
+        }
+
+        .value {
+            color: #001736;
+            font-weight: 800;
+            min-width: 50px;
+        }
+
+        .full-row {
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            table-layout: fixed;
+        }
+
+        th,
+        td {
+            border: 1px solid #1e293b;
+            padding: 5px;
+            font-size: 9px;
+            text-align: center;
+        }
+
+        th {
+            background: #fdf2b8;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #001736;
+        }
+
+        .subject-col {
+            text-align: left;
+            width: 25%;
+            padding-left: 8px;
+            font-weight: bold;
+        }
+
+        .grade-col {
+            font-weight: bold;
+        }
+
+        /* Section Dividers */
+        .section-header {
+            background: #f1f5f9;
+            padding: 6px 15px;
+            font-weight: bold;
+            font-size: 10px;
+            border: 1px solid #1e293b;
+            border-bottom: none;
+        }
+
+        /* Bottom Section */
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .totals-section {
+            border: 1px solid #1e293b;
+        }
+
+        .total-row {
+            display: flex;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .total-row:last-child {
+            border-bottom: none;
+        }
+
+        .total-label {
+            background: #fef3c7;
+            border-right: 1px solid #1e293b;
+            padding: 5px 10px;
+            width: 150px;
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        .total-value {
+            padding: 5px;
+            flex: 1;
+            text-align: center;
+            font-weight: bold;
+            font-size: 10px;
+            background: #fff;
+        }
+
+        .promotion-box {
+            margin-top: 15px;
+            border: 1px solid #1e293b;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .promotion-row {
+            display: flex;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .promotion-row:last-child {
+            border-bottom: none;
+        }
+
+        .promo-label {
+            background: #f1f5f9;
+            padding: 8px 10px;
+            flex: 1;
+            border-right: 1px solid #1e293b;
+        }
+
+        .promo-value {
+            width: 250px;
+            padding: 8px 10px;
+            color: #001736;
+        }
+
+        /* Signatures */
+        .signatures {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding: 0 20px;
+        }
+
+        .sig-block {
+            text-align: center;
+            border-top: 1px solid #1e293b;
+            width: 140px;
+            padding-top: 8px;
+            font-size: 9px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <img src="<%= logo %>" class="watermark">
+
+        <header>
+            <img src="<%= logo %>" class="logo">
+            <div class="header-text">
+                <h1>NEW GRACE ACADEMY</h1>
+                <div class="address">
+                    EKTA NAGAR, BOARGAD, SHIRISH SOCIETY, NASHIK, MAHARASHTRA 422004<br>
+                    CONTACT: +91 7770055574 | EMAIL: NEWGRACE.EDU.NSK@GMAIL.COM | WEBSITE: WWW.NEWGRACEACADEMY.IN
+                </div>
+                <div class="title">ACADEMIC PROGRESS REPORT</div>
+            </div>
+        </header>
+
+        <div class="student-info">
+            <div class="info-row">
+                <div class="full-row"><span class="label">STUDENT NAME :</span> <span class="value" style="flex: 1;">
+                        <%= student.name %>
+                    </span></div>
+            </div>
+            <div class="info-row" style="justify-content: space-between;">
+                <div class="info-item"><span class="label">CLASS :</span> <span class="value" style="min-width: 100px;">
+                        <%= classroom.name %>
+                    </span></div>
+                <div class="info-item"><span class="label">ROLL NO :</span> <span class="value"
+                        style="min-width: 80px;">
+                        <%= enrollment.roll_number %>
+                    </span></div>
+                <div class="info-item"><span class="label">GR NO :</span> <span class="value" style="min-width: 120px;">
+                        <%= student.gr_no %>
+                    </span></div>
+            </div>
+            <div class="info-row">
+                <div class="info-item" style="flex: 1;"><span class="label">FATHER NAME :</span> <span class="value"
+                        style="flex: 1;">
+                        <%= student.father_name %>
+                    </span></div>
+                <div class="info-item" style="flex: 1;"><span class="label">MOTHER NAME :</span> <span class="value"
+                        style="flex: 1;">
+                        <%= student.mother_name %>
+                    </span></div>
+            </div>
+        </div>
+
+        <div class="section-header">SCHOLASTIC AREA - TERM <%= term %>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th rowspan="2" style="width: 40px;">SR.</th>
+                    <th rowspan="2" class="subject-col">SUBJECT</th>
+                    <th colspan="5">CONSOLIDATED ASSESSMENT (100 MARKS)</th>
+                    <th rowspan="2" style="width: 60px;">GRADE</th>
+                </tr>
+                <tr>
+                    <th>UNIT I (10)</th>
+                    <th>SUB ENR (5)</th>
+                    <th>NOTE BK (5)</th>
+                    <th>TERM (80)</th>
+                    <th>TOTAL (100)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% marks.forEach((m, idx)=> { %>
+                    <tr>
+                        <td>
+                            <%= idx + 1 %>
+                        </td>
+                        <td class="subject-col">
+                            <%= m.subject_name %>
+                        </td>
+                        <td>
+                            <%= m.unit_written || '-' %>
+                        </td>
+                        <td>
+                            <%= m.class_test || '-' %>
+                        </td>
+                        <td>
+                            <%= m.notebook || '-' %>
+                        </td>
+                        <td>
+                            <%= m.term_written || '-' %>
+                        </td>
+                        <td>
+                            <%= m.total_obtained || '-' %>
+                        </td>
+                        <td class="grade-col">
+                            <%= m.grade || '-' %>
+                        </td>
+                    </tr>
+                    <% }) %>
+            </tbody>
+        </table>
+
+        <div class="footer-grid">
+            <div class="co-scholastic">
+                <div class="section-header">CO-SCHOLASTIC AREAS</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="subject-col" style="background: #fdf2b8;">ACTIVITY AREA</th>
+                            <th style="width: 80px;">GRADE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% coScholastic.forEach(cs=> { %>
+                            <tr>
+                                <td class="subject-col">
+                                    <%= cs.area_name %>
+                                </td>
+                                <td class="grade-col">
+                                    <%= cs.grade_term1 %>
+                                </td>
+                            </tr>
+                            <% }) %>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="totals-section">
+                <div class="total-row">
+                    <div class="total-label">TOTAL MARKS</div>
+                    <div class="total-value">
+                        <%= overall.total %> / <%= overall.max %>
+                    </div>
+                </div>
+                <div class="total-row">
+                    <div class="total-label">PERCENTAGE</div>
+                    <div class="total-value">
+                        <%= overall.percentage.toFixed(2) %>%
+                    </div>
+                </div>
+                <div class="total-row">
+                    <div class="total-label">OVERALL GRADE</div>
+                    <div class="total-value">
+                        <%= overall.grade %>
+                    </div>
+                </div>
+                <div class="total-row">
+                    <div class="total-label">ATTENDANCE</div>
+                    <div class="total-value">
+                        <%= overall.attendance || '95%' %>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="promotion-box">
+            <div class="promotion-row">
+                <div class="promo-label">CONGRATULATIONS !!! PROMOTED TO CLASS:</div>
+                <div class="promo-value">
+                    <%= overall.promotion_class %>
+                </div>
+            </div>
+            <div class="promotion-row">
+                <div class="promo-label">NEW ACADEMIC SESSION BEGINS ON:</div>
+                <div class="promo-value">....................................................................</div>
+            </div>
+        </div>
+
+        <div class="signatures">
+            <div class="sig-block">CLASS TEACHER</div>
+            <div class="sig-block">PRINCIPAL</div>
+            <div class="sig-block">PARENT</div>
+        </div>
+    </div>
+</body>
+
+</html>

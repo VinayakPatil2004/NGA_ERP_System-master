@@ -1,0 +1,5 @@
+name,category,unit,location,room_number,opening_stock,minimum_stock
+Dell Optiplex 7050,Computer Lab,pcs,Row A,Room 101,25,2
+Robotics Kit V2,Robotics Lab,Set,Cupboard 1,Room 204,10,2
+Microscope,Science Lab,pcs,Shelf B,Room 302,15,1
+A4 Paper Bundle,Stationery,Pack,Main Office,Admin Room,50,10

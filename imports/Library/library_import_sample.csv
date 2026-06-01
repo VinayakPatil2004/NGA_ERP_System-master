@@ -1,0 +1,6 @@
+title,author,isbn,genre,publisher,year,copies,available,shelf,rack_number,status,academic_year
+To Kill a Mockingbird,Harper Lee,978-0061120084,Literature,J.B. Lippincott & Co.,1960,10,10,A-1,R-01,Available,2026-27
+The Selfish Gene,Richard Dawkins,978-0198788607,Science,Oxford University Press,1976,5,5,B-2,R-02,Available,2026-27
+A Brief History of Time,Stephen Hawking,978-0553380163,Science,Bantam Books,1988,8,8,B-2,R-03,Available,2026-27
+The Great Gatsby,F. Scott Fitzgerald,978-0743273565,Literature,Scribner,1925,12,12,A-1,R-01,Available,2026-27
+Fundamentals of Physics,David Halliday,978-1118230718,Science,Wiley,2013,15,15,C-3,R-05,Available,2026-27

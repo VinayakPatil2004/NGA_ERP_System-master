@@ -1,0 +1,4 @@
+vehicle_number,driver_name,driver_phone,route_name,capacity,status
+MH-12-AB-1234,Ramesh Patil,9876543210,Phase 1 to Campus,40,active
+MH-12-CD-5678,Suresh Jadhav,8765432109,Downtown Route,30,active
+MH-14-XY-9012,Ganesh More,7654321098,East Side Loop,50,active

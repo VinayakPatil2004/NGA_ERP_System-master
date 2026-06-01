@@ -1,0 +1,405 @@
+:root {
+    /* 
+     Grace ERP - Institutional Branding Matrix
+     Centralized control for system-wide color schemes.
+     Refined for the 'Simplified Premium' aesthetic.
+  */
+
+    /* 1. Sidebar branding */
+    --sidebar-bg: #001736;
+    --sidebar-text: #ffffff;
+    --sidebar-hover: #002a5a;
+    --sidebar-active: #004080;
+    --sidebar-border: rgba(255, 255, 255, 0.1);
+    --sidebar-icon: #FFB606;
+
+    /* 2. Global Typography & Content */
+    --text-main: #001736;
+    --text-muted: #64748b;
+    --text-inverse: #ffffff;
+    --text-accent: #FFB606;
+
+    /* 3. Module Headers & Layout */
+    --header-bg: #ffffff;
+    --header-text: #001736;
+    --bg-app: #F8FAFC;
+    --bg-card: #ffffff;
+    --border-layout: #e2e8f0;
+
+    /* 4. Action Elements (Buttons) */
+    --btn-primary-bg: #001736;
+    --btn-primary-text: #ffffff;
+    --btn-secondary-bg: #ffffff;
+    --btn-secondary-text: #001736;
+    --btn-accent-bg: #FFB606;
+    --btn-accent-text: #001736;
+
+    /* 5. Data Visualization (Tables) */
+    --table-header-bg: #91a0ec;
+    /* slate-300 */
+    --table-header-text: #000000;
+    --table-border: #000000;
+    --table-row-hover: #f1f5f9;
+    --table-cell-text: #000000;
+
+    /* 6. Functional/Status Colors */
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --info: #3b82f6;
+    --pending: #94a3b8;
+}
+
+/* 
+   Hide Horizontal Scrollbars Globally 
+   Maintains 'Simplified Premium' aesthetic by removing visual clutter.
+*/
+/* 
+   Institutional Scroll Utility 
+   Maintains 'Simplified Premium' aesthetic while allowing data visibility.
+*/
+html,
+body,
+#root {
+    overflow-x: hidden;
+    width: 100vw;
+    position: relative;
+    margin: 0;
+    padding: 0;
+}
+
+main,
+.flex-1 {
+    overflow-x: hidden;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* 
+   Custom Scrollbar Utility - Global Control 
+   Ensures horizontal scrolls are visible for data-heavy tables.
+*/
+.custom-scrollbar {
+    overflow-x: auto !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Global scrollbar standard */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+
+/* 
+   Institutional Table Scroll Utility 
+   Enables horizontal scroll ONLY on mobile devices (< 1024px) for specific containers.
+*/
+@media (max-width: 1024px) {
+    .mobile-table-scroll::-webkit-scrollbar:horizontal {
+        height: 4px !important;
+        display: block !important;
+    }
+
+    .mobile-table-scroll::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+
+    .mobile-table-scroll {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* 
+   Sidebar Navigation - Refined Aesthetics
+   Hides the scrollbar and ensures visual clarity for the 'Simplified Premium' menu.
+*/
+.sidebar-nav-container {
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.sidebar-nav-container::-webkit-scrollbar {
+    display: none !important;
+}
+
+.sidebar-nav-container {
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
+}
+
+/* Sidebar Text Color Force - Ensured White for Institutional Dashboard */
+.sidebar-text-white {
+    color: #ffffff !important;
+}
+
+.sidebar-text-muted {
+    color: rgba(255, 255, 255, 0.8) !important;
+    /* Brighter white for institutional clarity */
+}
+
+/* Sidebar Link States - Institutional Standard */
+.sidebar-link-muted {
+    color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.sidebar-link-active {
+    color: var(--sidebar-text) !important;
+}
+
+/* Institutional Action Elements - Compliance with 'Simplified Premium' */
+.input-institutional {
+    border: 1.5px solid var(--text-main) !important;
+    border-radius: 0.75rem !important;
+    /* rounded-xl */
+    background-color: var(--bg-card) !important;
+    transition: all 0.3s ease;
+}
+
+.input-institutional:focus {
+    border-color: var(--text-accent) !important;
+    box-shadow: 0 0 0 4px rgba(255, 182, 6, 0.1) !important;
+}
+
+.form-header-institutional {
+    background-color: var(--sidebar-bg) !important;
+    color: var(--text-inverse) !important;
+    border-bottom: 2px solid var(--text-accent) !important;
+}
+
+.border-institutional {
+    border: 1px solid black !important;
+    border-radius: 10px !important;
+}
+
+/* Institutional Branding - Semantic UI Classes */
+.bg-card-institutional {
+    background-color: var(--bg-card) !important;
+    border: 1px solid var(--sidebar-bg) !important;
+}
+
+.text-institutional-main {
+    color: var(--sidebar-bg) !important;
+}
+
+.text-institutional-muted {
+    color: var(--text-muted) !important;
+}
+
+.btn-add-institutional {
+    background-color: var(--bg-card) !important;
+    color: var(--sidebar-bg) !important;
+    border: 1px solid var(--sidebar-bg) !important;
+    font-weight: 900 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.1em !important;
+    transition: all 0.3s ease !important;
+}
+
+.btn-add-institutional span,
+.btn-add-institutional strong,
+.btn-add-institutional b,
+.btn-add-institutional p {
+    color: inherit !important;
+}
+
+.btn-add-institutional:hover {
+    background-color: rgb(225, 188, 3) !important;
+    color: var(--text-inverse) !important;
+}
+
+.btn-close-institutional {
+    background-color: transparent !important;
+    color: var(--danger) !important;
+    border: 1.5px solid var(--danger) !important;
+    transition: all 0.3s ease !important;
+}
+
+.btn-close-institutional:hover {
+    background-color: var(--danger) !important;
+    color: var(--text-inverse) !important;
+}
+
+.search-bar-institutional {
+    background-color: var(--bg-card) !important;
+    border: 1px solid var(--sidebar-bg) !important;
+    border-radius: 0.75rem !important;
+    /* rounded-xl */
+    display: flex !important;
+    align-items: center !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+}
+
+.search-bar-institutional input {
+    background-color: transparent !important;
+    border: none !important;
+    outline: none !important;
+    width: 100% !important;
+    color: var(--sidebar-bg) !important;
+}
+
+.bg-institutional-page {
+    background-color: #F8FAFC !important;
+}
+
+.btn-icon-institutional {
+    background-color: #ffffff !important;
+    color: var(--sidebar-bg) !important;
+    border: 1px solid rgba(0, 23, 54, 0.1) !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-icon-institutional:hover {
+    background-color: var(--text-accent) !important;
+    color: var(--sidebar-bg) !important;
+    transform: scale(1.05);
+}
+
+.txt-black {
+    color: black !important;
+}
+
+/* 
+   Institutional Dashboard - Typography Matrix 
+   Targets the Adminitrator content area (main) to enforce high-contrast black text.
+*/
+
+/* 1. Core Typography: Black for Titles, Labels, and Subtitles */
+main h1:not(.branding-text),
+main h2:not(.branding-text),
+main h3:not(.branding-text),
+main h4,
+main h5,
+main h6,
+main label,
+main .card-title,
+main .form-title,
+main .subtitle {
+    color: #000000 !important;
+}
+
+/* 2. Slate/Gray to Black Conversion (Institutional High-Visibility) */
+main .text-slate-400, main .text-slate-500, main .text-slate-600,
+main .text-gray-400, main .text-gray-500, main .text-gray-600 {
+    color: #000000 !important;
+}
+
+/* 3. Inverse Logic: Force White on Dark/Primary Backgrounds in Content Area */
+main .bg-primary h1, main .bg-primary h2, main .bg-primary h3,
+main .bg-primary p, main .bg-primary span, main .bg-primary label,
+main .bg-black h1, main .bg-black h2, main .bg-black h3,
+main .bg-black p, main .bg-black span, main .bg-black label {
+    color: #ffffff !important;
+}
+
+/* 3a. Button Protection: Ensure buttons inside dark containers keep their colors */
+main .bg-primary button, main .bg-primary button *,
+main .bg-black button, main .bg-black button * {
+    color: inherit !important;
+}
+
+/* 4. Branding Protection: Ensures Sidebar/Identity branding stays consistent */
+.branding-text,
+.text-accent.font-black {
+    color: var(--text-accent) !important;
+}
+
+/* 5. Header Button Premium Standard (Consolidated Above) */
+
+.text-active-sidebar,
+.text-active-sidebar * {
+    color: #000000 !important;
+    font-weight: 900 !important;
+}
+
+/* Fallback for sub-items and direct spans on white active background */
+aside.bg-primary .bg-bg-base span,
+aside.bg-primary .bg-bg-base svg {
+    color: #000000 !important;
+}
+
+/* Institutional Table Controls */
+.bg-table-header {
+    background-color: var(--table-header-bg) !important;
+}
+
+.text-table-header {
+    color: var(--table-header-text) !important;
+}
+
+.border-table {
+    border: 1px solid var(--table-border);
+}
+
+.border-t-table {
+    border-top: 1px solid var(--table-border);
+}
+
+.border-b-table {
+    border-bottom: 1px solid var(--table-border);
+}
+
+.border-r-table {
+    border-right: 1px solid var(--table-border);
+}
+
+.text-table-cell {
+    color: var(--table-cell-text) !important;
+}
+
+.hover-table-row:hover {
+    background-color: var(--table-row-hover);
+}
+
+@media print {
+    aside, nav, header, footer, .print-hidden, .print\:hidden, .lucide, button, .sidebar-nav-container, .password-reminder-banner, .Toastify {
+        display: none !important;
+    }
+    html, body, #root, main {
+        background: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        width: 100% !important;
+        height: auto !important;
+        display: block !important;
+    }
+    .flex-1, main {
+        position: static !important;
+        width: 100% !important;
+    }
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}

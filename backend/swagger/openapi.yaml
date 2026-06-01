@@ -1,0 +1,4062 @@
+openapi: 3.0.3
+info:
+  title: Grace ERP System — REST API
+  description: |
+    ## 🏫 Grace ERP System — Institutional Management Platform
+
+    Complete REST API documentation for the **Grace ERP System** — a full-featured 
+    Educational Resource Planning platform for schools and colleges.
+
+    ### 🔐 Authentication
+    All protected endpoints require a valid **JWT Bearer Token** in the Authorization header:
+    ```
+    Authorization: Bearer <your_jwt_token>
+    ```
+
+    ### ⚡ Rate Limiting
+    Authentication endpoints are rate-limited to **5 requests per 15 minutes** per IP.
+
+    ### 📌 Base URL
+    - **Development**: `http://localhost:5000`
+    - **Production**: *(configured via environment)*
+
+  version: 1.0.0
+  contact:
+    name: Grace ERP Support
+    email: support@grace-erp.com
+  license:
+    name: ISC
+    url: https://opensource.org/licenses/ISC
+
+servers:
+  - url: http://localhost:5000/api
+    description: Development Server
+
+tags:
+  - name: Authentication
+    description: Login, password recovery, device binding
+  - name: Academic Year
+    description: Manage academic years, promotions, and global stats
+  - name: Academic Records
+    description: Student and classroom academic records
+  - name: Admissions
+    description: Admission applications and direct enrollment
+  - name: Admin Profile
+    description: Administrator profile management
+  - name: Announcements
+    description: Notice board announcements
+  - name: Assignments
+    description: Classroom assignments and submissions
+  - name: Attendance
+    description: Student and staff attendance, self-punch system
+  - name: Bulk Import
+    description: Excel-based bulk data imports
+  - name: Calendar
+    description: Institutional calendar events
+  - name: Certificates
+    description: Bonafide and character certificate workflow
+  - name: Leaving Certificates
+    description: Student leaving certificate approval workflow
+  - name: Classrooms
+    description: Classroom management, enrollment, and subjects
+  - name: Communication
+    description: Messaging, announcements, email/SMS broadcasts, circulars
+  - name: Counsellor
+    description: Enquiries, follow-ups, and counselling sessions
+  - name: Examinations
+    description: Exam management, marks entry, report cards
+  - name: Fees & Finance
+    description: Fee structures, student ledger, expenses, CA reports
+  - name: HR
+    description: Payroll, salary structures, loans, leave management
+  - name: Inventory
+    description: Item catalog, suppliers, and transactions
+  - name: Library
+    description: Book catalog, issue/return, fines, notices
+  - name: Parent Portal
+    description: Parent access to child data
+  - name: Roles
+    description: System role management
+  - name: Security
+    description: Visitor management, gate entry, gate pass, vehicle tracking
+  - name: Staff
+    description: Staff onboarding, profiles, and management
+  - name: Students
+    description: Student registry, leaves, fees, and data
+  - name: Subjects
+    description: Subject master data
+  - name: Syllabus
+    description: Syllabus tracking and progress
+  - name: Teacher
+    description: Teacher profile, announcements, assignments
+  - name: Timetable
+    description: Class and teacher timetable management
+  - name: Transport
+    description: Vehicle and student transport assignments
+  - name: Users
+    description: Internal user and personnel account management
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from POST /auth/login
+
+  schemas:
+    # ─── Common ───────────────────────────────────────────────
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Operation completed successfully
+
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Access denied
+        error:
+          type: string
+          example: Detailed error description
+
+    # ─── Auth ─────────────────────────────────────────────────
+    LoginRequest:
+      type: object
+      required: [username, password, role]
+      properties:
+        username:
+          type: string
+          example: admin@grace.com
+        password:
+          type: string
+          format: password
+          example: SecurePass123
+        rememberMe:
+          type: boolean
+          example: true
+        role:
+          type: string
+          enum: [admin, principal, hr, teacher, accountant, counsellor, librarian, security_guard, student, parent]
+          example: admin
+
+    LoginResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Login successful
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        user:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            username:
+              type: string
+              example: admin@grace.com
+            role:
+              type: string
+              example: Admin
+            userType:
+              type: string
+              example: admin
+            fullName:
+              type: string
+              example: Administrator
+
+    # ─── Academic Year ─────────────────────────────────────────
+    AcademicYear:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 3
+        year_name:
+          type: string
+          example: 2026-27
+        start_date:
+          type: string
+          format: date
+          example: 2026-06-01
+        end_date:
+          type: string
+          format: date
+          example: 2027-05-31
+        is_active:
+          type: integer
+          enum: [0, 1]
+          example: 1
+
+    # ─── Staff ────────────────────────────────────────────────
+    StaffRecord:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 12
+        employee_id:
+          type: string
+          example: NGA/STF/2026/0010
+        full_name:
+          type: string
+          example: Suresh Patil
+        role_name:
+          type: string
+          example: Teacher
+        email:
+          type: string
+          example: suresh@grace.com
+        mobile:
+          type: string
+          example: "9876543210"
+        status:
+          type: string
+          enum: [active, inactive]
+          example: active
+
+    StaffOnboardResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Staff onboarded successfully
+        employeeId:
+          type: string
+          example: NGA/STF/2026/0025
+        credentials:
+          type: object
+          properties:
+            username:
+              type: string
+              example: suresh@grace.com
+            password:
+              type: string
+              example: Abc12345
+
+    # ─── Student ───────────────────────────────────────────────
+    StudentRecord:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 45
+        full_name:
+          type: string
+          example: Rohan Sharma
+        admission_no:
+          type: string
+          example: ADM-2026-0045
+        class:
+          type: string
+          example: "10"
+        section:
+          type: string
+          example: A
+        status:
+          type: string
+          example: active
+
+    # ─── Book ─────────────────────────────────────────────────
+    BookRecord:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 5
+        title:
+          type: string
+          example: Introduction to Physics
+        author:
+          type: string
+          example: H.C. Verma
+        isbn:
+          type: string
+          example: "9780123456789"
+        rack_number:
+          type: string
+          example: R-03
+        shelf_number:
+          type: string
+          example: S-02
+        available:
+          type: boolean
+          example: true
+
+    # ─── Issue Book ────────────────────────────────────────────
+    IssueBookRequest:
+      type: object
+      required: [book_id, member_id, member_name, member_class, issue_date, due_date]
+      properties:
+        book_id:
+          type: integer
+          example: 4
+        member_id:
+          type: string
+          example: NGA/STF/2026/0002
+        member_name:
+          type: string
+          example: Sachin Kadam
+        member_class:
+          type: string
+          example: Staff
+        issue_date:
+          type: string
+          format: date
+          example: 2026-05-29
+        due_date:
+          type: string
+          format: date
+          example: 2026-06-12
+        academic_year_id:
+          type: integer
+          example: 3
+
+    # ─── Security / Visitor ────────────────────────────────────
+    VisitorRecord:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 10
+        name:
+          type: string
+          example: Karan Malhotra
+        purpose:
+          type: string
+          example: Academic Inquiry
+        person_to_meet:
+          type: string
+          example: HR Manager
+        in_time:
+          type: string
+          example: "10:30"
+        out_time:
+          type: string
+          example: "12:15"
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+          example: approved
+
+    GateEntryRequest:
+      type: object
+      required: [name, purpose, person_to_meet, in_time]
+      properties:
+        name:
+          type: string
+          example: Rajesh Kumar
+        purpose:
+          type: string
+          example: Parent Meeting
+        person_to_meet:
+          type: string
+          example: Principal
+        in_time:
+          type: string
+          example: "09:00"
+        academic_year_id:
+          type: integer
+          example: 3
+
+    # ─── Fee ──────────────────────────────────────────────────
+    FeeStructure:
+      type: object
+      properties:
+        id:
+          type: integer
+        class:
+          type: string
+          example: "10"
+        fee_type:
+          type: string
+          example: Tuition Fee
+        amount:
+          type: number
+          example: 5000
+        frequency:
+          type: string
+          enum: [monthly, quarterly, annually]
+          example: monthly
+
+    # ─── HR ───────────────────────────────────────────────────
+    LeaveRequest:
+      type: object
+      required: [leave_type, from_date, to_date, reason]
+      properties:
+        leave_type:
+          type: string
+          enum: [sick, casual, earned, maternity]
+          example: sick
+        from_date:
+          type: string
+          format: date
+          example: 2026-06-01
+        to_date:
+          type: string
+          format: date
+          example: 2026-06-03
+        reason:
+          type: string
+          example: Medical treatment
+
+    # ─── Communication ────────────────────────────────────────
+    MessageRequest:
+      type: object
+      required: [to, subject, body]
+      properties:
+        to:
+          type: integer
+          example: 5
+        subject:
+          type: string
+          example: Exam Schedule Notice
+        body:
+          type: string
+          example: Dear Teacher, please review the updated exam schedule.
+
+    # ─── Bulk Import Response ──────────────────────────────────
+    BulkImportResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Import completed
+        totalRows:
+          type: integer
+          example: 150
+        inserted:
+          type: integer
+          example: 142
+        failed:
+          type: integer
+          example: 8
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              row:
+                type: integer
+                example: 24
+              error:
+                type: string
+                example: Required field missing
+
+security:
+  - BearerAuth: []
+
+paths:
+  # ════════════════════════════════════════════════════════════
+  # AUTHENTICATION
+  # ════════════════════════════════════════════════════════════
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: Login to the ERP System
+      description: |
+        Authenticates a user and returns a JWT token. 
+        Supports all institutional roles.
+        
+        **Rate Limited**: 5 requests per 15 minutes per IP.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Invalid institutional credentials
+        '403':
+          description: Account suspended or password expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded
+
+  /auth/forgot-password:
+    post:
+      tags: [Authentication]
+      summary: Request password recovery
+      description: |
+        Sends a password recovery email. Returns the same response whether 
+        the email exists or not (anti-enumeration protection).
+        
+        **Rate Limited**: 5 requests per 15 minutes per IP.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: staff@grace.com
+      responses:
+        '200':
+          description: Recovery email sent (or silently ignored if not found)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: If this email exists in our system, recovery instructions have been sent.
+
+  /auth/reset-password:
+    post:
+      tags: [Authentication]
+      summary: Reset password using recovery token
+      description: |
+        Resets the user password using a valid recovery token.
+        
+        **Password Rules**: Minimum 6 characters, at least 1 uppercase letter, at least 1 number.
+        
+        **Token expiry**: 1 hour from generation.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, newPassword]
+              properties:
+                token:
+                  type: string
+                  example: recovery_token_xyz123
+                newPassword:
+                  type: string
+                  format: password
+                  example: NewSecure123
+      responses:
+        '200':
+          description: Password reset successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Invalid token or weak password
+
+  /auth/device-status:
+    get:
+      tags: [Authentication]
+      summary: Check device binding status
+      description: Returns whether the current device is trusted/bound to the account.
+      responses:
+        '200':
+          description: Device status
+
+  /auth/bind-device:
+    post:
+      tags: [Authentication]
+      summary: Bind current device to account
+      description: Registers the current device fingerprint as trusted.
+      responses:
+        '200':
+          description: Device bound successfully
+
+  # ════════════════════════════════════════════════════════════
+  # ACADEMIC YEAR
+  # ════════════════════════════════════════════════════════════
+  /academic-years/active:
+    get:
+      tags: [Academic Year]
+      summary: Get active academic year (Public)
+      description: Returns the currently active academic year. Used for app initialization.
+      security: []
+      responses:
+        '200':
+          description: Active academic year
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademicYear'
+
+  /academic-years/all:
+    get:
+      tags: [Academic Year]
+      summary: Get all academic years
+      description: Returns all years. Accessible to all authenticated roles.
+      responses:
+        '200':
+          description: List of all academic years
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AcademicYear'
+
+  /academic-years/stats:
+    get:
+      tags: [Academic Year]
+      summary: Get global institutional statistics
+      description: Returns student count, staff count, revenue per academic year.
+      responses:
+        '200':
+          description: Global stats
+
+  /academic-years/dashboard-charts:
+    get:
+      tags: [Academic Year]
+      summary: Get dashboard chart data
+      description: Returns chart-ready data for admin/principal dashboard.
+      responses:
+        '200':
+          description: Chart data
+
+  /academic-years/add:
+    post:
+      tags: [Academic Year]
+      summary: Add new academic year
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [year_name, start_date, end_date]
+              properties:
+                year_name:
+                  type: string
+                  example: 2027-28
+                start_date:
+                  type: string
+                  format: date
+                  example: 2027-06-01
+                end_date:
+                  type: string
+                  format: date
+                  example: 2028-05-31
+      responses:
+        '201':
+          description: Year created
+
+  /academic-years/update/{id}:
+    put:
+      tags: [Academic Year]
+      summary: Update academic year
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcademicYear'
+      responses:
+        '200':
+          description: Year updated
+
+  /academic-years/delete/{id}:
+    delete:
+      tags: [Academic Year]
+      summary: Delete academic year
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Year deleted
+
+  /academic-years/set-active/{id}:
+    put:
+      tags: [Academic Year]
+      summary: Set academic year as active
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Year set as active
+
+  /academic-years/promote:
+    post:
+      tags: [Academic Year]
+      summary: Promote all students to next academic year
+      description: |
+        ⚠️ **Critical Operation**: Promotes ALL enrolled students to the next academic year. 
+        This action is not easily reversible.
+      responses:
+        '200':
+          description: Students promoted
+
+  # ════════════════════════════════════════════════════════════
+  # ACADEMIC RECORDS
+  # ════════════════════════════════════════════════════════════
+  /academic-records/classroom/{classroom_id}:
+    get:
+      tags: [Academic Records]
+      summary: Get records by classroom
+      parameters:
+        - name: classroom_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Classroom records
+
+  /academic-records/student/{student_id}:
+    get:
+      tags: [Academic Records]
+      summary: Get records by student
+      description: Students can only access their own records.
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Student academic records
+        '403':
+          description: Access denied
+
+  # ════════════════════════════════════════════════════════════
+  # ADMISSIONS
+  # ════════════════════════════════════════════════════════════
+  /admission/direct-enroll:
+    post:
+      tags: [Admissions]
+      summary: Direct enroll a new student
+      description: |
+        Directly enroll a student without going through the application process.
+        Supports file uploads for admission documents.
+        
+        **Max file size**: 10 MB per file.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                full_name:
+                  type: string
+                  example: Ananya Sharma
+                class:
+                  type: string
+                  example: "9"
+                section:
+                  type: string
+                  example: A
+                academic_year_id:
+                  type: integer
+                  example: 3
+                passportPhoto:
+                  type: string
+                  format: binary
+                birthCert:
+                  type: string
+                  format: binary
+                leavingCert:
+                  type: string
+                  format: binary
+                casteCert:
+                  type: string
+                  format: binary
+                aadharCopy:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Student enrolled
+        '400':
+          description: File too large or validation error
+
+  /admission/all:
+    get:
+      tags: [Admissions]
+      summary: Get all admission applications
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, approved, rejected]
+        - name: academic_year_id
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of applications
+
+  /admission/stats:
+    get:
+      tags: [Admissions]
+      summary: Get admission statistics
+      responses:
+        '200':
+          description: Admission stats (total, approved, pending, rejected)
+
+  /admission/{id}:
+    get:
+      tags: [Admissions]
+      summary: Get single application
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Application details
+    put:
+      tags: [Admissions]
+      summary: Update application
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [pending, approved, rejected]
+                remarks:
+                  type: string
+      responses:
+        '200':
+          description: Application updated
+    delete:
+      tags: [Admissions]
+      summary: Delete application
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Application deleted
+
+  # ════════════════════════════════════════════════════════════
+  # ADMIN PROFILE
+  # ════════════════════════════════════════════════════════════
+  /admin/profile:
+    get:
+      tags: [Admin Profile]
+      summary: Get admin profile
+      responses:
+        '200':
+          description: Admin profile data
+    put:
+      tags: [Admin Profile]
+      summary: Update admin profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                full_name:
+                  type: string
+                email:
+                  type: string
+                mobile:
+                  type: string
+      responses:
+        '200':
+          description: Profile updated
+
+  /admin/profile/change-password:
+    put:
+      tags: [Admin Profile]
+      summary: Change admin password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [currentPassword, newPassword]
+              properties:
+                currentPassword:
+                  type: string
+                  format: password
+                newPassword:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Password changed
+
+  # ════════════════════════════════════════════════════════════
+  # ANNOUNCEMENTS
+  # ════════════════════════════════════════════════════════════
+  /announcements/active:
+    get:
+      tags: [Announcements]
+      summary: Get active announcements
+      description: Returns all active announcements from the notice board.
+      responses:
+        '200':
+          description: Active announcements
+
+  # ════════════════════════════════════════════════════════════
+  # ASSIGNMENTS
+  # ════════════════════════════════════════════════════════════
+  /assignments/create:
+    post:
+      tags: [Assignments]
+      summary: Create assignment (Teacher)
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Chapter 5 Exercise
+                description:
+                  type: string
+                classroom_id:
+                  type: integer
+                due_date:
+                  type: string
+                  format: date
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Assignment created
+
+  /assignments/teacher:
+    get:
+      tags: [Assignments]
+      summary: Get teacher's assignments
+      responses:
+        '200':
+          description: List of assignments
+
+  /assignments/classroom/{classroom_id}:
+    get:
+      tags: [Assignments]
+      summary: Get classroom assignments (Student/Parent)
+      parameters:
+        - name: classroom_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Classroom assignments
+
+  /assignments/submit:
+    post:
+      tags: [Assignments]
+      summary: Submit assignment (Student)
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                assignment_id:
+                  type: integer
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Submission recorded
+
+  /assignments/{assignment_id}/submissions:
+    get:
+      tags: [Assignments]
+      summary: Get all submissions for assignment
+      parameters:
+        - name: assignment_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Submissions list
+
+  /assignments/submissions/{submission_id}/grade:
+    put:
+      tags: [Assignments]
+      summary: Grade a submission (Teacher)
+      parameters:
+        - name: submission_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                grade:
+                  type: string
+                  example: A+
+                feedback:
+                  type: string
+      responses:
+        '200':
+          description: Graded
+
+  /assignments/{assignment_id}:
+    put:
+      tags: [Assignments]
+      summary: Update assignment
+      parameters:
+        - name: assignment_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Updated
+    delete:
+      tags: [Assignments]
+      summary: Delete assignment
+      parameters:
+        - name: assignment_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Deleted
+
+  # ════════════════════════════════════════════════════════════
+  # ATTENDANCE
+  # ════════════════════════════════════════════════════════════
+  /attendance/students:
+    get:
+      tags: [Attendance]
+      summary: Get all student attendance
+      parameters:
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: classroom_id
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Student attendance records
+    post:
+      tags: [Attendance]
+      summary: Mark student attendance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                classroom_id:
+                  type: integer
+                date:
+                  type: string
+                  format: date
+                records:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      student_id:
+                        type: integer
+                      status:
+                        type: string
+                        enum: [present, absent, late]
+      responses:
+        '200':
+          description: Attendance marked
+
+  /attendance/stats:
+    get:
+      tags: [Attendance]
+      summary: Get attendance analytics
+      responses:
+        '200':
+          description: Attendance stats
+
+  /attendance/classroom/{classroom_id}:
+    get:
+      tags: [Attendance]
+      summary: Get attendance by classroom
+      parameters:
+        - name: classroom_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Classroom attendance
+
+  /attendance/students/lock:
+    post:
+      tags: [Attendance]
+      summary: Lock student attendance for a date
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                classroom_id:
+                  type: integer
+                date:
+                  type: string
+                  format: date
+      responses:
+        '200':
+          description: Attendance locked
+
+  /attendance/record:
+    put:
+      tags: [Attendance]
+      summary: Update an attendance record (Admin/Principal)
+      responses:
+        '200':
+          description: Record updated
+
+  /attendance/staff:
+    get:
+      tags: [Attendance]
+      summary: Get all staff attendance
+      responses:
+        '200':
+          description: Staff attendance records
+    post:
+      tags: [Attendance]
+      summary: Mark staff attendance
+      responses:
+        '200':
+          description: Attendance marked
+
+  /attendance/staff/lock:
+    post:
+      tags: [Attendance]
+      summary: Lock staff attendance for a date
+      responses:
+        '200':
+          description: Attendance locked
+
+  /attendance/history/students:
+    get:
+      tags: [Attendance]
+      summary: Student attendance history
+      responses:
+        '200':
+          description: History
+
+  /attendance/history/staff:
+    get:
+      tags: [Attendance]
+      summary: Staff attendance history
+      responses:
+        '200':
+          description: History
+
+  /attendance/current:
+    get:
+      tags: [Attendance]
+      summary: Get current self-attendance status (Staff)
+      responses:
+        '200':
+          description: Current status
+
+  /attendance/punch-in:
+    post:
+      tags: [Attendance]
+      summary: Staff punch-in
+      responses:
+        '200':
+          description: Punched in
+
+  /attendance/punch-out:
+    post:
+      tags: [Attendance]
+      summary: Staff punch-out
+      responses:
+        '200':
+          description: Punched out
+
+  /attendance/lunch-start:
+    post:
+      tags: [Attendance]
+      summary: Start lunch break
+      responses:
+        '200':
+          description: Lunch started
+
+  /attendance/lunch-end:
+    post:
+      tags: [Attendance]
+      summary: End lunch break
+      responses:
+        '200':
+          description: Lunch ended
+
+  /attendance/tea-start:
+    post:
+      tags: [Attendance]
+      summary: Start tea break
+      responses:
+        '200':
+          description: Tea break started
+
+  /attendance/tea-end:
+    post:
+      tags: [Attendance]
+      summary: End tea break
+      responses:
+        '200':
+          description: Tea break ended
+
+  /attendance/allowed-ip:
+    get:
+      tags: [Attendance]
+      summary: Get allowed IP for biometric punch
+      responses:
+        '200':
+          description: Allowed IP configuration
+
+  /attendance/settings:
+    get:
+      tags: [Attendance]
+      summary: Get attendance settings
+      responses:
+        '200':
+          description: Settings
+    put:
+      tags: [Attendance]
+      summary: Update attendance settings
+      responses:
+        '200':
+          description: Settings updated
+
+  # ════════════════════════════════════════════════════════════
+  # BULK IMPORT
+  # ════════════════════════════════════════════════════════════
+  /bulk-import/library:
+    post:
+      tags: [Bulk Import]
+      summary: Import library book catalog from Excel
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Excel file (.xlsx)
+      responses:
+        '200':
+          description: Import result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkImportResponse'
+
+  /bulk-import/library-transactions:
+    post:
+      tags: [Bulk Import]
+      summary: Import library issue/return transactions
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Import result
+
+  /bulk-import/staff:
+    post:
+      tags: [Bulk Import]
+      summary: Import staff registry from Excel
+      description: Auto-generates employee IDs, usernames, and Bcrypt-hashed passwords.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Import result
+
+  /bulk-import/students:
+    post:
+      tags: [Bulk Import]
+      summary: Import student registry from Excel
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Import result
+
+  /bulk-import/exams:
+    post:
+      tags: [Bulk Import]
+      summary: Bulk import exam marks
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Import result
+
+  /bulk-import/inventory:
+    post:
+      tags: [Bulk Import]
+      summary: Import inventory items
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Import result
+
+  /bulk-import/transport:
+    post:
+      tags: [Bulk Import]
+      summary: Import transport data
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Import result
+
+  /bulk-import/suppliers:
+    post:
+      tags: [Bulk Import]
+      summary: Import supplier registry
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Import result
+
+  /bulk-import/student-documents:
+    post:
+      tags: [Bulk Import]
+      summary: Bulk upload student documents (max 100 files)
+      description: File naming pattern — `STUDENTID_TYPE.ext` e.g. `ADM-2026-0001_AADHAR.pdf`
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        '200':
+          description: Upload result
+
+  /bulk-import/staff-documents:
+    post:
+      tags: [Bulk Import]
+      summary: Bulk upload staff documents (max 100 files)
+      description: File naming pattern — `EMPID_TYPE.ext` e.g. `NGA-STF-2026-0001_AADHAR.pdf`
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        '200':
+          description: Upload result
+
+  # ════════════════════════════════════════════════════════════
+  # CALENDAR
+  # ════════════════════════════════════════════════════════════
+  /calendar/all:
+    get:
+      tags: [Calendar]
+      summary: Get all calendar events
+      responses:
+        '200':
+          description: Calendar events
+
+  /calendar/add:
+    post:
+      tags: [Calendar]
+      summary: Add calendar event
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, date]
+              properties:
+                title:
+                  type: string
+                  example: Annual Sports Day
+                date:
+                  type: string
+                  format: date
+                description:
+                  type: string
+                type:
+                  type: string
+                  example: event
+      responses:
+        '201':
+          description: Event created
+
+  /calendar/update/{id}:
+    put:
+      tags: [Calendar]
+      summary: Update calendar event
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Updated
+
+  /calendar/delete/{id}:
+    delete:
+      tags: [Calendar]
+      summary: Delete calendar event
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Deleted
+
+  # ════════════════════════════════════════════════════════════
+  # CERTIFICATES
+  # ════════════════════════════════════════════════════════════
+  /certificates:
+    get:
+      tags: [Certificates]
+      summary: Get all certificate requests
+      responses:
+        '200':
+          description: All requests
+
+  /certificates/my-requests:
+    get:
+      tags: [Certificates]
+      summary: Get own certificate requests (Student/Parent)
+      responses:
+        '200':
+          description: Own requests
+
+  /certificates/request:
+    post:
+      tags: [Certificates]
+      summary: Submit a certificate request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                certificate_type:
+                  type: string
+                  enum: [bonafide, character, transfer]
+                purpose:
+                  type: string
+      responses:
+        '201':
+          description: Request submitted
+
+  /certificates/{id}/teacher-approve:
+    put:
+      tags: [Certificates]
+      summary: Teacher-level certificate approval
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Approved by teacher
+
+  /certificates/{id}/admin-approve:
+    put:
+      tags: [Certificates]
+      summary: Admin-level certificate approval
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Approved by admin
+
+  /certificates/{id}/principal-approve:
+    put:
+      tags: [Certificates]
+      summary: Principal final approval
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Finally approved
+
+  /certificates/{id}/generate:
+    get:
+      tags: [Certificates]
+      summary: Generate bonafide certificate PDF
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: PDF document
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
+  # ════════════════════════════════════════════════════════════
+  # LEAVING CERTIFICATES
+  # ════════════════════════════════════════════════════════════
+  /lc:
+    get:
+      tags: [Leaving Certificates]
+      summary: Get all LC requests
+      responses:
+        '200':
+          description: All LC requests
+
+  /lc/my-requests:
+    get:
+      tags: [Leaving Certificates]
+      summary: Get own LC requests
+      responses:
+        '200':
+          description: Own requests
+
+  /lc/request:
+    post:
+      tags: [Leaving Certificates]
+      summary: Submit LC request
+      responses:
+        '201':
+          description: Request submitted
+
+  /lc/{id}/teacher-approve:
+    put:
+      tags: [Leaving Certificates]
+      summary: Teacher approval
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Approved
+
+  /lc/{id}/admin-approve:
+    put:
+      tags: [Leaving Certificates]
+      summary: Admin approval
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Approved
+
+  /lc/{id}/principal-approve:
+    put:
+      tags: [Leaving Certificates]
+      summary: Principal final approval
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Approved
+
+  /lc/{id}/generate:
+    get:
+      tags: [Leaving Certificates]
+      summary: Generate LC PDF document
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: LC document PDF
+
+  # ════════════════════════════════════════════════════════════
+  # CLASSROOMS
+  # ════════════════════════════════════════════════════════════
+  /classrooms:
+    get:
+      tags: [Classrooms]
+      summary: Get all classrooms
+      parameters:
+        - name: academic_year_id
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Classrooms list
+    post:
+      tags: [Classrooms]
+      summary: Create a classroom
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [grade, section]
+              properties:
+                grade:
+                  type: string
+                  example: "10"
+                section:
+                  type: string
+                  example: A
+                academic_year_id:
+                  type: integer
+      responses:
+        '201':
+          description: Classroom created
+
+  /classrooms/batch:
+    post:
+      tags: [Classrooms]
+      summary: Batch-create classrooms
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                classrooms:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      grade:
+                        type: string
+                      section:
+                        type: string
+      responses:
+        '201':
+          description: Classrooms created
+
+  /classrooms/enroll:
+    post:
+      tags: [Classrooms]
+      summary: Enroll student into classroom
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [student_id, classroom_id]
+              properties:
+                student_id:
+                  type: integer
+                classroom_id:
+                  type: integer
+      responses:
+        '200':
+          description: Student enrolled
+
+  /classrooms/subjects:
+    post:
+      tags: [Classrooms]
+      summary: Assign subjects to classroom
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                classroom_id:
+                  type: integer
+                subject_ids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '200':
+          description: Subjects assigned
+
+  /classrooms/{classroom_id}/students:
+    get:
+      tags: [Classrooms]
+      summary: Get enrolled students in classroom
+      parameters:
+        - name: classroom_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Enrolled students
+
+  /classrooms/{classroom_id}/subjects:
+    get:
+      tags: [Classrooms]
+      summary: Get subjects of a classroom
+      parameters:
+        - name: classroom_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Classroom subjects
+
+  /classrooms/promote:
+    post:
+      tags: [Classrooms]
+      summary: Promote students to next class
+      responses:
+        '200':
+          description: Students promoted
+
+  /classrooms/roll-sync:
+    post:
+      tags: [Classrooms]
+      summary: Batch sync roll numbers
+      responses:
+        '200':
+          description: Roll numbers synced
+
+  # ════════════════════════════════════════════════════════════
+  # COMMUNICATION
+  # ════════════════════════════════════════════════════════════
+  /communication/send:
+    post:
+      tags: [Communication]
+      summary: Send internal message
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageRequest'
+      responses:
+        '200':
+          description: Message sent
+
+  /communication/inbox:
+    get:
+      tags: [Communication]
+      summary: Get inbox messages
+      responses:
+        '200':
+          description: Inbox messages
+
+  /communication/outbox:
+    get:
+      tags: [Communication]
+      summary: Get sent messages
+      responses:
+        '200':
+          description: Sent messages
+
+  /communication/mark-read/{id}:
+    put:
+      tags: [Communication]
+      summary: Mark message as read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Marked as read
+
+  /communication/announcements:
+    get:
+      tags: [Communication]
+      summary: Get all active announcements
+      responses:
+        '200':
+          description: Announcements
+    post:
+      tags: [Communication]
+      summary: Create announcement (with optional attachment)
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+                attachment:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Announcement created
+
+  /communication/announcements/{id}:
+    delete:
+      tags: [Communication]
+      summary: Delete announcement
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Deleted
+
+  /communication/email:
+    post:
+      tags: [Communication]
+      summary: Send email broadcast to institution
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                subject:
+                  type: string
+                body:
+                  type: string
+                targetRoles:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Email sent
+
+  /communication/sms:
+    post:
+      tags: [Communication]
+      summary: Send SMS broadcast
+      responses:
+        '200':
+          description: SMS sent
+
+  /communication/circulars:
+    get:
+      tags: [Communication]
+      summary: Get all circulars
+      responses:
+        '200':
+          description: Circulars list
+    post:
+      tags: [Communication]
+      summary: Upload circular (PDF)
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                document:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Circular uploaded
+
+  /communication/circulars/{id}:
+    delete:
+      tags: [Communication]
+      summary: Delete circular
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Deleted
+
+  # ════════════════════════════════════════════════════════════
+  # COUNSELLOR
+  # ════════════════════════════════════════════════════════════
+  /counsellor/stats:
+    get:
+      tags: [Counsellor]
+      summary: Get counsellor dashboard statistics
+      responses:
+        '200':
+          description: Stats
+
+  /counsellor/enquiry:
+    post:
+      tags: [Counsellor]
+      summary: Create new enquiry
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                student_name:
+                  type: string
+                contact:
+                  type: string
+                enquiry_type:
+                  type: string
+                notes:
+                  type: string
+      responses:
+        '201':
+          description: Enquiry created
+
+  /counsellor/enquiry/all:
+    get:
+      tags: [Counsellor]
+      summary: Get all enquiries
+      responses:
+        '200':
+          description: Enquiries list
+
+  /counsellor/followup:
+    post:
+      tags: [Counsellor]
+      summary: Create follow-up for enquiry
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                enquiry_id:
+                  type: integer
+                follow_up_date:
+                  type: string
+                  format: date
+                notes:
+                  type: string
+      responses:
+        '201':
+          description: Follow-up created
+
+  /counsellor/followup/due:
+    get:
+      tags: [Counsellor]
+      summary: Get today's due follow-ups
+      responses:
+        '200':
+          description: Due follow-ups
+
+  /counsellor/followup/{enquiryId}:
+    get:
+      tags: [Counsellor]
+      summary: Get follow-ups for a specific enquiry
+      parameters:
+        - name: enquiryId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Follow-ups
+
+  /counsellor/session:
+    post:
+      tags: [Counsellor]
+      summary: Create counselling session
+      responses:
+        '201':
+          description: Session created
+
+  /counsellor/session/all:
+    get:
+      tags: [Counsellor]
+      summary: Get all counselling sessions
+      responses:
+        '200':
+          description: Sessions list
+
+  # ════════════════════════════════════════════════════════════
+  # EXAMINATIONS
+  # ════════════════════════════════════════════════════════════
+  /exams:
+    get:
+      tags: [Examinations]
+      summary: Get all exams
+      responses:
+        '200':
+          description: Exams list
+    post:
+      tags: [Examinations]
+      summary: Create exam
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, academic_year_id]
+              properties:
+                name:
+                  type: string
+                  example: First Term Exam
+                academic_year_id:
+                  type: integer
+                start_date:
+                  type: string
+                  format: date
+                end_date:
+                  type: string
+                  format: date
+      responses:
+        '201':
+          description: Exam created
+
+  /exams/{id}:
+    put:
+      tags: [Examinations]
+      summary: Update exam
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Updated
+    delete:
+      tags: [Examinations]
+      summary: Delete exam
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Deleted
+
+  /exams/marks:
+    post:
+      tags: [Examinations]
+      summary: Save marks for students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                exam_id:
+                  type: integer
+                classroom_id:
+                  type: integer
+                subject_id:
+                  type: integer
+                marks:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      student_id:
+                        type: integer
+                      marks_obtained:
+                        type: number
+      responses:
+        '200':
+          description: Marks saved
+
+  /exams/marks-batch:
+    get:
+      tags: [Examinations]
+      summary: Get marks batch (marks entry sheet)
+      parameters:
+        - name: exam_id
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: classroom_id
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: subject_id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Marks entry sheet
+
+  /exams/report-card:
+    get:
+      tags: [Examinations]
+      summary: Generate student report card
+      parameters:
+        - name: student_id
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: exam_id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Report card data
+
+  /exams/performance:
+    get:
+      tags: [Examinations]
+      summary: Get student performance summary
+      responses:
+        '200':
+          description: Performance data
+
+  /exams/bulk-upload:
+    post:
+      tags: [Examinations]
+      summary: Bulk upload marks from Excel
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Marks uploaded
+
+  # ════════════════════════════════════════════════════════════
+  # FEES & FINANCE
+  # ════════════════════════════════════════════════════════════
+  /finance/fee-structures:
+    get:
+      tags: [Fees & Finance]
+      summary: Get all fee structures
+      responses:
+        '200':
+          description: Fee structures
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FeeStructure'
+    post:
+      tags: [Fees & Finance]
+      summary: Create or update fee structure
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeeStructure'
+      responses:
+        '200':
+          description: Fee structure saved
+
+  /finance/student-fee-ledger:
+    get:
+      tags: [Fees & Finance]
+      summary: Get student fee ledger
+      parameters:
+        - name: student_id
+          in: query
+          schema:
+            type: integer
+        - name: academic_year_id
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Fee ledger
+
+  /finance/record-payment:
+    post:
+      tags: [Fees & Finance]
+      summary: Record a student payment
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                student_id:
+                  type: integer
+                amount:
+                  type: number
+                payment_date:
+                  type: string
+                  format: date
+                payment_mode:
+                  type: string
+                  enum: [cash, cheque, online, dd]
+                document:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Payment recorded
+
+  /finance/student-due-report:
+    get:
+      tags: [Fees & Finance]
+      summary: Get student due fees report
+      parameters:
+        - name: academic_year_id
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Due report
+
+  /finance/date-wise-collection-report:
+    get:
+      tags: [Fees & Finance]
+      summary: Get date-wise payment collection report
+      parameters:
+        - name: from_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: to_date
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Collection report
+
+  /finance/expenses:
+    get:
+      tags: [Fees & Finance]
+      summary: Get all expenses
+      responses:
+        '200':
+          description: Expenses list
+    post:
+      tags: [Fees & Finance]
+      summary: Record an expense
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                amount:
+                  type: number
+                category:
+                  type: string
+                date:
+                  type: string
+                  format: date
+                attachment:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Expense recorded
+
+  /finance/expenses/stats:
+    get:
+      tags: [Fees & Finance]
+      summary: Get expense analytics
+      responses:
+        '200':
+          description: Expense stats
+
+  /finance/ca-reports:
+    get:
+      tags: [Fees & Finance]
+      summary: Get CA finance reports
+      responses:
+        '200':
+          description: CA reports
+    post:
+      tags: [Fees & Finance]
+      summary: Upload CA finance report
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                attachment:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Report created
+
+  # ════════════════════════════════════════════════════════════
+  # HR
+  # ════════════════════════════════════════════════════════════
+  /hr/payroll:
+    get:
+      tags: [HR]
+      summary: Get institutional payroll
+      responses:
+        '200':
+          description: Payroll records
+
+  /hr/payroll/process:
+    post:
+      tags: [HR]
+      summary: Process monthly payroll
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                month:
+                  type: integer
+                  example: 5
+                year:
+                  type: integer
+                  example: 2026
+      responses:
+        '200':
+          description: Payroll processed
+
+  /hr/payroll/my-records:
+    get:
+      tags: [HR]
+      summary: Get own payslip records (Staff)
+      responses:
+        '200':
+          description: Payslips
+
+  /hr/salary-structures:
+    get:
+      tags: [HR]
+      summary: Get all salary structures
+      responses:
+        '200':
+          description: Salary structures
+    post:
+      tags: [HR]
+      summary: Create/update salary structure
+      responses:
+        '200':
+          description: Saved
+
+  /hr/loans:
+    get:
+      tags: [HR]
+      summary: Get all staff loans
+      responses:
+        '200':
+          description: Loans
+    post:
+      tags: [HR]
+      summary: Create a loan record
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                staff_id:
+                  type: integer
+                amount:
+                  type: number
+                repayment_months:
+                  type: integer
+      responses:
+        '201':
+          description: Loan created
+
+  /hr/loans/{id}:
+    put:
+      tags: [HR]
+      summary: Update loan
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Updated
+    delete:
+      tags: [HR]
+      summary: Delete loan
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Deleted
+
+  /hr/leaves:
+    get:
+      tags: [HR]
+      summary: Get leave requests
+      responses:
+        '200':
+          description: Leave requests
+    post:
+      tags: [HR]
+      summary: Apply for leave
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeaveRequest'
+      responses:
+        '201':
+          description: Leave applied
+
+  /hr/leaves/stats:
+    get:
+      tags: [HR]
+      summary: Get leave analytics
+      responses:
+        '200':
+          description: Leave stats
+
+  /hr/leaves/{id}/action:
+    put:
+      tags: [HR]
+      summary: Approve or reject leave (HR)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  enum: [approved, rejected]
+                remarks:
+                  type: string
+      responses:
+        '200':
+          description: Leave reviewed
+
+  # ════════════════════════════════════════════════════════════
+  # INVENTORY
+  # ════════════════════════════════════════════════════════════
+  /inventory/items:
+    get:
+      tags: [Inventory]
+      summary: Get all inventory items
+      responses:
+        '200':
+          description: Items list
+    post:
+      tags: [Inventory]
+      summary: Add inventory item
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                category:
+                  type: string
+                quantity:
+                  type: integer
+                unit_price:
+                  type: number
+                document:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Item added
+
+  /inventory/items/{id}:
+    put:
+      tags: [Inventory]
+      summary: Update item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Updated
+    delete:
+      tags: [Inventory]
+      summary: Delete item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Deleted
+
+  /inventory/suppliers:
+    get:
+      tags: [Inventory]
+      summary: Get all suppliers
+      responses:
+        '200':
+          description: Suppliers
+    post:
+      tags: [Inventory]
+      summary: Add supplier
+      responses:
+        '201':
+          description: Supplier added
+
+  /inventory/transactions:
+    get:
+      tags: [Inventory]
+      summary: Get all inventory transactions
+      responses:
+        '200':
+          description: Transactions
+    post:
+      tags: [Inventory]
+      summary: Record inventory transaction
+      responses:
+        '201':
+          description: Transaction recorded
+
+  /inventory/stats:
+    get:
+      tags: [Inventory]
+      summary: Get inventory dashboard stats
+      responses:
+        '200':
+          description: Inventory stats
+
+  # ════════════════════════════════════════════════════════════
+  # LIBRARY
+  # ════════════════════════════════════════════════════════════
+  /library/stats:
+    get:
+      tags: [Library]
+      summary: Get library overview statistics
+      responses:
+        '200':
+          description: Library stats (total books, available, issued, overdue)
+
+  /library/books:
+    get:
+      tags: [Library]
+      summary: Get all books
+      parameters:
+        - name: academic_year_id
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Books catalog
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BookRecord'
+    post:
+      tags: [Library]
+      summary: Add a new book to catalog
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, author]
+              properties:
+                title:
+                  type: string
+                  example: Introduction to Physics
+                author:
+                  type: string
+                  example: H.C. Verma
+                isbn:
+                  type: string
+                rack_number:
+                  type: string
+                shelf_number:
+                  type: string
+                quantity:
+                  type: integer
+      responses:
+        '201':
+          description: Book added
+
+  /library/books/{id}:
+    put:
+      tags: [Library]
+      summary: Update book (including Rack/Shelf number)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookRecord'
+      responses:
+        '200':
+          description: Book updated
+    delete:
+      tags: [Library]
+      summary: Delete book
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Book deleted
+
+  /library/transactions:
+    get:
+      tags: [Library]
+      summary: Get all issue/return transactions
+      responses:
+        '200':
+          description: Transactions
+
+  /library/issue:
+    post:
+      tags: [Library]
+      summary: Issue book to student or staff
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IssueBookRequest'
+      responses:
+        '200':
+          description: Book issued successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+  /library/return/{id}:
+    put:
+      tags: [Library]
+      summary: Return a book (by transaction ID)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Transaction ID
+      responses:
+        '200':
+          description: Book returned, fine calculated if overdue
+
+  /library/fines:
+    get:
+      tags: [Library]
+      summary: Get all library fines
+      responses:
+        '200':
+          description: Fines list
+
+  /library/fines/{id}/pay:
+    put:
+      tags: [Library]
+      summary: Mark fine as paid
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Fine cleared
+
+  /library/notices:
+    get:
+      tags: [Library]
+      summary: Get library notices
+      responses:
+        '200':
+          description: Notices
+    post:
+      tags: [Library]
+      summary: Post a library notice
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+      responses:
+        '201':
+          description: Notice posted
+
+  # ════════════════════════════════════════════════════════════
+  # PARENT PORTAL
+  # ════════════════════════════════════════════════════════════
+  /parents/child-details:
+    get:
+      tags: [Parent Portal]
+      summary: Get linked child details (Parent)
+      description: Returns child's profile, attendance, exams, and fees.
+      responses:
+        '200':
+          description: Child data
+
+  # ════════════════════════════════════════════════════════════
+  # ROLES
+  # ════════════════════════════════════════════════════════════
+  /roles:
+    get:
+      tags: [Roles]
+      summary: Get all system roles
+      responses:
+        '200':
+          description: Roles list
+    post:
+      tags: [Roles]
+      summary: Create a new role
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [role_name]
+              properties:
+                role_name:
+                  type: string
+                  example: librarian
+      responses:
+        '201':
+          description: Role created
+
+  # ════════════════════════════════════════════════════════════
+  # SECURITY COMMAND CENTER
+  # ════════════════════════════════════════════════════════════
+  /security/overview:
+    get:
+      tags: [Security]
+      summary: Get live security dashboard stats
+      parameters:
+        - name: academic_year_id
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Live visitor, gate entry, and vehicle counts
+
+  /security/visitors:
+    get:
+      tags: [Security]
+      summary: Get all visitors log
+      parameters:
+        - name: academic_year_id
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Visitors list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VisitorRecord'
+    post:
+      tags: [Security]
+      summary: Register a new visitor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, purpose, person_to_meet]
+              properties:
+                name:
+                  type: string
+                  example: Karan Malhotra
+                purpose:
+                  type: string
+                  example: Academic Inquiry
+                person_to_meet:
+                  type: string
+                  example: HR Manager
+                mobile:
+                  type: string
+                academic_year_id:
+                  type: integer
+      responses:
+        '201':
+          description: Visitor registered
+
+  /security/visitors/pending:
+    get:
+      tags: [Security]
+      summary: Get pending visitors (Staff — own approvals)
+      responses:
+        '200':
+          description: Pending visitors
+
+  /security/visitors/all-my:
+    get:
+      tags: [Security]
+      summary: Get all of staff's own visitor log
+      responses:
+        '200':
+          description: Own visitors
+
+  /security/visitors/all-institutional:
+    get:
+      tags: [Security]
+      summary: Get institution-wide visitor log
+      responses:
+        '200':
+          description: All institutional visitors
+
+  /security/visitors/{id}:
+    put:
+      tags: [Security]
+      summary: Update visitor record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Updated
+    delete:
+      tags: [Security]
+      summary: Delete visitor record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Visitor deleted
+
+  /security/visitors/{id}/approve:
+    put:
+      tags: [Security]
+      summary: Approve visitor (Staff)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Visitor approved
+
+  /security/entries:
+    get:
+      tags: [Security]
+      summary: Get all gate entry logs
+      responses:
+        '200':
+          description: Gate entries
+    post:
+      tags: [Security]
+      summary: Create gate entry log
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GateEntryRequest'
+      responses:
+        '201':
+          description: Gate entry created
+
+  /security/entries/{id}:
+    put:
+      tags: [Security]
+      summary: Update gate entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Updated
+
+  /security/entries/{id}/exit:
+    put:
+      tags: [Security]
+      summary: Mark gate exit
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                out_time:
+                  type: string
+                  example: "12:15"
+      responses:
+        '200':
+          description: Exit recorded
+
+  /security/passes:
+    post:
+      tags: [Security]
+      summary: Request gate pass
+      responses:
+        '201':
+          description: Pass requested
+
+  /security/passes/{id}/approve:
+    put:
+      tags: [Security]
+      summary: Approve gate pass
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Pass approved
+
+  /security/passes/verify:
+    get:
+      tags: [Security]
+      summary: Verify gate pass token
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Pass verified
+
+  /security/vehicles:
+    get:
+      tags: [Security]
+      summary: Get vehicle tracking logs
+      responses:
+        '200':
+          description: Vehicle logs
+    post:
+      tags: [Security]
+      summary: Log vehicle entry
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                vehicle_number:
+                  type: string
+                  example: MH-12-AB-1234
+                driver_name:
+                  type: string
+                purpose:
+                  type: string
+                in_time:
+                  type: string
+      responses:
+        '201':
+          description: Vehicle logged
+
+  /security/vehicles/{id}/exit:
+    put:
+      tags: [Security]
+      summary: Mark vehicle exit
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Exit logged
+
+  # ════════════════════════════════════════════════════════════
+  # STAFF
+  # ════════════════════════════════════════════════════════════
+  /staff/onboard:
+    post:
+      tags: [Staff]
+      summary: Onboard new staff member
+      description: |
+        Creates a new staff profile with auto-generated Employee ID (`NGA/STF/{YEAR}/{SEQ}`)
+        and login credentials.
+        
+        **Employee ID Year** is derived from the selected Academic Year (e.g., `2026-27` → `2026`).
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [full_name, role, academicYear]
+              properties:
+                full_name:
+                  type: string
+                  example: Sunita Desai
+                role:
+                  type: string
+                  example: Teacher
+                email:
+                  type: string
+                  format: email
+                mobile:
+                  type: string
+                academicYear:
+                  type: string
+                  example: 2026-27
+                photo:
+                  type: string
+                  format: binary
+                aadhar:
+                  type: string
+                  format: binary
+                pan:
+                  type: string
+                  format: binary
+                addressProof:
+                  type: string
+                  format: binary
+                bankPassbook:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Staff onboarded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffOnboardResponse'
+
+  /staff/all:
+    get:
+      tags: [Staff]
+      summary: Get all staff registry
+      parameters:
+        - name: role
+          in: query
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [teaching, non-teaching]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive]
+      responses:
+        '200':
+          description: Staff list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StaffRecord'
+
+  /staff/stats:
+    get:
+      tags: [Staff]
+      summary: Get staff statistics
+      responses:
+        '200':
+          description: Staff stats by role, type, gender
+
+  /staff/profile/{id}:
+    get:
+      tags: [Staff]
+      summary: Get staff profile
+      description: Staff can only view their own profile. HR/Admin/Principal have full access.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Staff profile
+
+  /staff/status/{id}:
+    put:
+      tags: [Staff]
+      summary: Update staff active/inactive status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [active, inactive]
+      responses:
+        '200':
+          description: Status updated
+
+  /staff/update/{id}:
+    put:
+      tags: [Staff]
+      summary: Update staff record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Staff updated
+
+  /staff/{id}:
+    delete:
+      tags: [Staff]
+      summary: Delete staff record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Staff deleted
+
+  # ════════════════════════════════════════════════════════════
+  # STUDENTS
+  # ════════════════════════════════════════════════════════════
+  /students/all:
+    get:
+      tags: [Students]
+      summary: Get all students
+      parameters:
+        - name: academic_year_id
+          in: query
+          schema:
+            type: integer
+        - name: class
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Students list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentRecord'
+
+  /students/alumni:
+    get:
+      tags: [Students]
+      summary: Get alumni (archived students)
+      responses:
+        '200':
+          description: Alumni list
+
+  /students/parent/me:
+    get:
+      tags: [Students]
+      summary: Get linked child (Parent)
+      responses:
+        '200':
+          description: Child profile
+
+  /students/{id}:
+    get:
+      tags: [Students]
+      summary: Get single student profile
+      description: Students can access own data; parents their child; staff full access.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Student profile
+    put:
+      tags: [Students]
+      summary: Update student profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Updated
+    delete:
+      tags: [Students]
+      summary: Delete student
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Deleted
+
+  /students/{id}/attendance:
+    get:
+      tags: [Students]
+      summary: Get student attendance
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Attendance records
+
+  /students/{id}/exams:
+    get:
+      tags: [Students]
+      summary: Get student exam results
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Exam results
+
+  /students/{id}/fees:
+    get:
+      tags: [Students]
+      summary: Get student fee details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Fee details
+    post:
+      tags: [Students]
+      summary: Add fee entry for student
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '201':
+          description: Fee entry added
+
+  /students/{id}/leaves:
+    get:
+      tags: [Students]
+      summary: Get student leave requests
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Leaves
+    post:
+      tags: [Students]
+      summary: Apply for student leave
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                from_date:
+                  type: string
+                  format: date
+                to_date:
+                  type: string
+                  format: date
+                reason:
+                  type: string
+      responses:
+        '201':
+          description: Leave applied
+
+  /students/all/leaves:
+    get:
+      tags: [Students]
+      summary: Get all student leave requests (Teacher/Admin)
+      responses:
+        '200':
+          description: All student leaves
+
+  /students/leaves/{leaveId}/review:
+    put:
+      tags: [Students]
+      summary: Approve or reject student leave
+      parameters:
+        - name: leaveId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  enum: [approved, rejected]
+      responses:
+        '200':
+          description: Leave reviewed
+
+  # ════════════════════════════════════════════════════════════
+  # SUBJECTS
+  # ════════════════════════════════════════════════════════════
+  /subjects:
+    get:
+      tags: [Subjects]
+      summary: Get all subjects
+      security: []
+      responses:
+        '200':
+          description: Subjects list
+    post:
+      tags: [Subjects]
+      summary: Add new subject
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                  example: Mathematics
+                code:
+                  type: string
+                  example: MATH-10
+      responses:
+        '201':
+          description: Subject added
+
+  # ════════════════════════════════════════════════════════════
+  # SYLLABUS
+  # ════════════════════════════════════════════════════════════
+  /syllabus/classroom/{classroom_id}:
+    get:
+      tags: [Syllabus]
+      summary: Get syllabus progress for classroom
+      parameters:
+        - name: classroom_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Syllabus progress
+
+  /syllabus:
+    post:
+      tags: [Syllabus]
+      summary: Add syllabus topic
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                classroom_id:
+                  type: integer
+                topic:
+                  type: string
+                subject_id:
+                  type: integer
+      responses:
+        '201':
+          description: Topic added
+
+  /syllabus/{id}:
+    put:
+      tags: [Syllabus]
+      summary: Update topic completion status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [pending, completed]
+      responses:
+        '200':
+          description: Status updated
+
+  /syllabus/daily/{classroom_id}:
+    get:
+      tags: [Syllabus]
+      summary: Get daily class report
+      parameters:
+        - name: classroom_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Daily report
+
+  /syllabus/master/{classroom_id}:
+    get:
+      tags: [Syllabus]
+      summary: Get master syllabus
+      parameters:
+        - name: classroom_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Master syllabus
+
+  /syllabus/master:
+    post:
+      tags: [Syllabus]
+      summary: Add master syllabus topic
+      responses:
+        '201':
+          description: Topic added
+
+  /syllabus/master/{id}:
+    put:
+      tags: [Syllabus]
+      summary: Update master syllabus topic
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Updated
+    delete:
+      tags: [Syllabus]
+      summary: Delete master syllabus topic
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Deleted
+
+  # ════════════════════════════════════════════════════════════
+  # TEACHER
+  # ════════════════════════════════════════════════════════════
+  /teacher/profile:
+    get:
+      tags: [Teacher]
+      summary: Get teacher profile
+      responses:
+        '200':
+          description: Teacher profile
+
+  /teacher/announcements:
+    get:
+      tags: [Teacher]
+      summary: Get class announcements
+      responses:
+        '200':
+          description: Announcements
+    post:
+      tags: [Teacher]
+      summary: Post a class announcement
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+      responses:
+        '201':
+          description: Posted
+
+  /teacher/notices:
+    get:
+      tags: [Teacher]
+      summary: Get school notices
+      responses:
+        '200':
+          description: Notices
+
+  /teacher/assignments:
+    get:
+      tags: [Teacher]
+      summary: Get teacher's assignments
+      responses:
+        '200':
+          description: Assignments
+    post:
+      tags: [Teacher]
+      summary: Create assignment (Teacher view)
+      responses:
+        '201':
+          description: Created
+
+  # ════════════════════════════════════════════════════════════
+  # TIMETABLE
+  # ════════════════════════════════════════════════════════════
+  /timetable/settings:
+    get:
+      tags: [Timetable]
+      summary: Get timetable settings
+      responses:
+        '200':
+          description: Settings
+    post:
+      tags: [Timetable]
+      summary: Update timetable settings
+      responses:
+        '200':
+          description: Updated
+
+  /timetable/rules:
+    get:
+      tags: [Timetable]
+      summary: Get subject rules
+      responses:
+        '200':
+          description: Rules
+    post:
+      tags: [Timetable]
+      summary: Create or upsert subject rule
+      responses:
+        '200':
+          description: Rule saved
+
+  /timetable/class/{classroom_id}:
+    get:
+      tags: [Timetable]
+      summary: Get timetable for a classroom
+      parameters:
+        - name: classroom_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Class timetable
+
+  /timetable/teacher/{teacher_id}:
+    get:
+      tags: [Timetable]
+      summary: Get timetable for a teacher
+      parameters:
+        - name: teacher_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Teacher timetable
+
+  /timetable/slot:
+    post:
+      tags: [Timetable]
+      summary: Save a timetable slot
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                classroom_id:
+                  type: integer
+                teacher_id:
+                  type: integer
+                subject_id:
+                  type: integer
+                day:
+                  type: string
+                  example: Monday
+                period:
+                  type: integer
+                start_time:
+                  type: string
+                end_time:
+                  type: string
+      responses:
+        '200':
+          description: Slot saved
+
+  /timetable/auto-generate:
+    post:
+      tags: [Timetable]
+      summary: Auto-generate timetable
+      responses:
+        '200':
+          description: Timetable generated
+
+  /timetable/slot/{id}:
+    delete:
+      tags: [Timetable]
+      summary: Delete a timetable slot
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Slot deleted
+
+  # ════════════════════════════════════════════════════════════
+  # TRANSPORT
+  # ════════════════════════════════════════════════════════════
+  /transport/vehicles:
+    get:
+      tags: [Transport]
+      summary: Get all vehicles
+      responses:
+        '200':
+          description: Vehicles
+    post:
+      tags: [Transport]
+      summary: Add new vehicle
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                vehicle_number:
+                  type: string
+                  example: MH-12-AB-1234
+                vehicle_type:
+                  type: string
+                  example: Bus
+                capacity:
+                  type: integer
+                driver_name:
+                  type: string
+                route:
+                  type: string
+      responses:
+        '201':
+          description: Vehicle added
+
+  /transport/vehicles/{id}:
+    put:
+      tags: [Transport]
+      summary: Update vehicle
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Updated
+    delete:
+      tags: [Transport]
+      summary: Remove vehicle
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Deleted
+
+  /transport/assignments:
+    get:
+      tags: [Transport]
+      summary: Get all transport assignments
+      responses:
+        '200':
+          description: Assignments
+    post:
+      tags: [Transport]
+      summary: Assign student to transport route
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [student_id, vehicle_id]
+              properties:
+                student_id:
+                  type: integer
+                vehicle_id:
+                  type: integer
+                pickup_point:
+                  type: string
+      responses:
+        '201':
+          description: Student assigned
+
+  /transport/assignments/{id}:
+    put:
+      tags: [Transport]
+      summary: Update transport assignment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Updated
+    delete:
+      tags: [Transport]
+      summary: Remove transport assignment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Removed
+
+  # ════════════════════════════════════════════════════════════
+  # USERS / PERSONNEL
+  # ════════════════════════════════════════════════════════════
+  /users:
+    get:
+      tags: [Users]
+      summary: Get all internal users
+      responses:
+        '200':
+          description: Users list
+    post:
+      tags: [Users]
+      summary: Create new internal user account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password, roleId]
+              properties:
+                username:
+                  type: string
+                  example: hr@grace.com
+                password:
+                  type: string
+                  format: password
+                  example: SecurePass123
+                roleId:
+                  type: integer
+                  example: 2
+      responses:
+        '201':
+          description: User created
+
+  /users/{id}:
+    put:
+      tags: [Users]
+      summary: Update user account
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Updated
+    delete:
+      tags: [Users]
+      summary: Delete user account permanently
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User deleted
+
+  /users/{id}/toggle-block:
+    patch:
+      tags: [Users]
+      summary: Suspend or restore user account access
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Block status toggled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+              example:
+                message: User block status updated successfully

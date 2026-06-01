@@ -1,0 +1,4 @@
+vehicle_no,driver_name,driver_phone,route_name,capacity,gr_no,pickup_point
+MH-12-GR-1001,Dada Saheb,9876543210,Route Alpha (Nigdi-Akurdi),40,NGA/STU/2026/0001,Nigdi Chowk
+MH-12-GR-1001,Dada Saheb,9876543210,Route Alpha (Nigdi-Akurdi),40,NGA/STU/2026/0002,Bhakti-Shakti
+MH-12-GR-1002,Karan Singh,9123456789,Route Beta (Kothrud),35,NGA/STU/2026/0005,Kothrud Stand
